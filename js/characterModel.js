@@ -6,7 +6,7 @@ export class CharacterModel {
         this.characterNames = [];
     }
   
-    async getCharactersDataFromAPI(characterUrl) {
+    async loadCharacterData(characterUrl) {
       try {
         const response = await $.ajax({
           url: characterUrl,
@@ -28,7 +28,8 @@ export class CharacterModel {
   
     async loadCharacterNames() {
         try {
-          const response = await fetch(this.jsonPath);
+          console.log(this.jsonFilePath)
+          const response = await fetch(this.jsonFilePath);
           this.characterNames = await response.json();
           return this.characterNames; // Geeft de geladen data terug
         } catch (error) {
@@ -38,10 +39,18 @@ export class CharacterModel {
       }
     
       filterCharacterNames(query) {
-        return this.characterNames.filter(character =>
-          character.name.toLowerCase().includes(query.toLowerCase())
-        );
-      }
+        return this.characterNames.filter(character => {
+            const name = character.name.toLowerCase();
+            const queryLower = query.toLowerCase();
+    
+            if (query.length === 1) { 
+                return name.startsWith(queryLower); 
+            } 
+            
+            return name.includes(queryLower); 
+        });
+    }
+      
     
       getUniqueFirstLetters() {
         return [...new Set(this.characterNames.map(c => c.name.charAt(0).toUpperCase()))].sort();

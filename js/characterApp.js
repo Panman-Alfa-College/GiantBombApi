@@ -8,11 +8,7 @@ export class CharacterApp {
   }
 
   async init() {
-    await this.uiManager.loadAndDisplayCharacters();
+    await this.uiManager.loadAndDisplayLetters();
     this.uiManager.init();
   }
 }
-
-// Start de app
-const app = new CharacterApp("YOUR_API_KEY", "./characters.json");
-app.init();
