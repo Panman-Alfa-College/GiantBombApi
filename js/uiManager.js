@@ -1,13 +1,13 @@
 export class UIManager {
-  constructor(characterModel) {
-    this.characterModel = characterModel;
+  constructor(model) {
+    this.model = model;
     this.dom = {
-      firstLetterContainer: document.getElementById("firstLetterContainer"),
-      titleContainer: document.getElementById("titleContainer"),
-      searchInput: document.getElementById("searchInput"),
-      namesContainer: document.getElementById("namesContainer"),
+      firstLetterContainer:   document.getElementById("firstLetterContainer"),
+      titleContainer:         document.getElementById("titleContainer"),
+      searchInput:            document.getElementById("searchInput"),
+      namesContainer:         document.getElementById("namesContainer"),
       characterInfoContainer: document.getElementById("characterInfoContainer"),
-      extraInfoContainer: document.getElementById("extraInfoContainer"),
+      extraInfoContainer:     document.getElementById("extraInfoContainer"),
     };
   }
 
@@ -21,22 +21,22 @@ export class UIManager {
   }
 
   async loadAndDisplayLetters() {
-    await this.characterModel.loadCharacterNames(); //load character names from JSON file and store in characterModel
+    await this.model.loadCharacterNames(); //load character names from JSON file and store in characterModel
     this.showFirstLetters();
   }
 
   handleSearch() {
     const query = this.dom.searchInput.value.trim();
-    const filteredCharacterNames = this.characterModel.filterCharacterNames(query);
+    const filteredCharacterNames = this.model.filterCharacterNames(query);
     this.showNames(filteredCharacterNames, query);
   }
 
   showFirstLetters() {
     this.dom.firstLetterContainer.innerHTML = "";
-    const letters = this.characterModel.getUniqueFirstLetters();
+    const letters = this.model.getUniqueFirstLetters();
 
     letters.forEach(letter => {
-      const filteredCharacterNames = this.characterModel.filterCharacterNames(letter);
+      const filteredCharacterNames = this.model.filterCharacterNames(letter);
       const btn = document.createElement("a");
       btn.href = "#";
       btn.textContent = letter;
@@ -72,117 +72,96 @@ export class UIManager {
     });
   }
 
-  buildCharacter(character) {
+  buildItem(item) {
     const fragment = document.createDocumentFragment();   
-
-    if (character.name) {
-      const characterNameTitle = document.createElement("h3");
-      characterNameTitle.id = character.name + "Title";
-      characterNameTitle.textContent = character.name;
-      fragment.appendChild(characterNameTitle);
+    const itemTitle = document.createElement("h3"); // 
+console.log(item, "item"); // Log het item voor debugging
+    if (item.name) {
+      
+      itemTitle.id = item.name + "Title";
+      itemTitle.textContent = item.name;
+      fragment.appendChild(itemTitle); 
     }
 
-    if (Array.isArray(character) && character.length > 0 && character[0].hasOwnProperty("medium_url")) {
+    if (Array.isArray(item) && item.length > 0 && item[0].hasOwnProperty("medium_url")) {
         const imagesTitle = this.dom.titleContainer.textContent.trim().split("van")[0];
-
-        characterNameTitle.textContent = imagesTitle;
-        fragment.appendChild(characterNameTitle);
-        character.forEach(image => {
-          const characterImage = document.createElement("img");
-          characterImage.src = image.medium_url;
-          characterImage.alt = "";
-          fragment.appendChild(characterImage);
+        itemTitle.textContent = imagesTitle;
+        fragment.appendChild(itemTitle);
+        item.forEach(image => {
+          const itemImage = document.createElement("img");
+          itemImage.src = image.medium_url;
+          itemImage.alt = "";
+          fragment.appendChild(itemImage);
       });
     }
 
 
-    if (character.image) {
+    if (item.image) {
       const img = document.createElement("img");
-      img.src = character.image.medium_url;
-      img.alt = character.name;
+      img.src = item.image.medium_url;
+      img.alt = item.name;
       fragment.appendChild(img);
     }
 
-    if (character.deck || character.description) {
+    if (item.deck || item.description) {
       const desc = document.createElement("p");
-      desc.textContent = character.deck || character.description;
+      desc.textContent = item.deck || item.description;
       fragment.appendChild(desc);
     }
 
-    if (character.characters) {
-      this.createCharacterButton(
+    if (item.characters) {
+      this.createButton(
         fragment,
-        character.characters,
-        "Characters in " + character.name,
-        "charactersInGame",
-        character.name,
-        character.api_detail_url
+        item,        
+        "characters",        
       );
     }
 
-    if (character.games) {
-      this.createCharacterButton(
+    if (item.games) {
+      this.createButton(
         fragment,
-        character.games,
-        "Games met " + character.name,
-        "game",
-        character.name,
-        character.api_detail_url
+        item,
+        "games",        
       );
     }
 
-    if (character.dlcs) {
-      this.createCharacterButton(
+    if (item.dlcs) {
+      this.createButton(
         fragment,
-        character.dlcs,
-        "DLC van " + character.name,
-        "dlc",
-        character.name,
-        character.api_detail_url
+        item,        
+        "dlcs",  
       );
     }
 
-    if (character.friends) {
-      this.createCharacterButton(
+    if (item.friends) {
+      this.createButton(
         fragment,
-        character.friends,
-        "Vrienden van " + character.name,
-        "friend",
-        character.name,
-        character.api_detail_url
+        item,        
+        "friends",        
       );
     }
 
-    if (character.enemies) {
-      this.createCharacterButton(
+    if (item.enemies) {
+      this.createButton(
         fragment,
-        character.enemies,
-        "Vijanden van " + character.name,
-        "enemy",
-        character.name,
-        character.api_detail_url
+        item,        
+        "enemies",        
       );
     }
 
-    if (character.image_tags) {
-      this.createCharacterButton(
+    if (item.image_tags) {
+      this.createButton(
         fragment,
-        character.image_tags,
-        "Afbeeldingen van " + character.name,
-        "images",
-        character.name,
-        character.api_detail_url
+        item,        
+        "images_tags",        
       );
     }
 
-    if (character.first_appeared_in_game) {
-      this.createCharacterButton(
-        fragment,
-        [character.first_appeared_in_game],
-        `Eerste game van ${character.name}`,
-        "firstGame",
-        character.name,
-        character.first_appeared_in_game.api_detail_url
+    if (item.first_appeared_in_game) {
+      this.createButton(
+        fragment,   
+        item,
+        "first_appeared_in_game",                
       );
     }
 
@@ -190,11 +169,10 @@ export class UIManager {
   }
 
   displayCharacter(fragment, parentContainerId) {
-    console.log(parentContainerId);
-
+    
     if(parentContainerId == "characterInfoContainer") {
-      //this.dom.extraInfoContainer.innerHTML = ""; // Leeg de extra info container
-      //this.dom.extraInfoContainer.appendChild(fragment); // Voeg de nieuwe content toe aan de container
+      this.dom.extraInfoContainer.innerHTML = ""; // Leeg de extra info container
+      this.dom.extraInfoContainer.appendChild(fragment); // Voeg de nieuwe content toe aan de container
     } 
     
     if(parentContainerId == "namesContainer") {
@@ -207,6 +185,8 @@ export class UIManager {
     }
 
     if(parentContainerId == "extraInfoContainer") {
+      
+      
       this.dom.extraInfoContainer.innerHTML = ""; // Leeg de extra info container
       this.dom.characterInfoContainer.innerHTML = ""; // Leeg de extra info container
       this.dom.characterInfoContainer.appendChild(fragment); // Voeg de nieuwe content toe aan de container
@@ -214,86 +194,101 @@ export class UIManager {
 
   }
 
-
   async loadAndDisplayItem(itemUrl, parentContainerId) {
-    
-
-
+    console.log("parentContainerId", parentContainerId); // Log de parentContainerId voor debugging`
+    console.log("itemUrl", itemUrl); // Log de itemUrl voor debugging
     try {
-      const characterData = await this.characterModel.loadCharacterData(itemUrl);
-      if (!characterData) throw new Error("Geen data gevonden");
-  
-      const characterHtml = this.buildCharacter(characterData);
-      this.displayCharacter(characterHtml, parentContainerId); // Gebruik de nieuwe functie om de HTML weer te geven
+      const data = await this.model.loadData(itemUrl);
+      if (!data) throw new Error("Geen data gevonden");  
+        const html = this.buildItem(data);
+        this.displayCharacter(html, parentContainerId); // Gebruik de nieuwe functie om de HTML weer te geven
     } catch (error) {
       console.error("❌ Fout bij laden:", error);
-    }
-    
+    }    
   }
 
 
-  createCharacterButton(fragment, list, buttonText, type, characterName, characterUrl) {
+  createButton(fragment, item, type) {    
+    
+    const buttonTextMap = {
+      enemies: "Vijanden",
+      friends: "Vrienden",
+      games: "Games",
+      first_appeared_in_game: "Eerste Game",
+      characters: "Characters in Game",
+      dlcs: "DLC",
+      image_tags: "Afbeeldingen"
+    };
+
+  const typeDescriptionsMap = {
+      enemies: " is een vijand van ",
+      friends: " is een vriend van ",
+      games: " komt voor in de game ",
+      first_appeared_in_game: " is voor het eerst verschenen in de game ",
+      characters: " is een character in de game ",
+      dlcs: " is een DLC van de game ",
+      image_tags: " zijn afbeeldingen van ",
+    };
+
+    const list = Array.isArray(item[type]) ? item[type] : [item[type]]; // Controleer of het een array is, anders maak er een array van
+    
+    
+      
+
+    
+    const typeDescription  = typeDescriptionsMap[type] || ""; // Gebruik een lege string als er geen beschrijving is
+    const buttonText        = buttonTextMap[type] || "Details"; // Gebruik een standaard tekst als er geen specifieke tekst is
+    const oldItemName        = item.name || "";
+    const oldItemUrl             = item.api_detail_url.replace(/\/(enemy|friend)\//g, "/character/"); // Vervang enemy of friend door character in de URL
+    
+    console.log("list", list);
+    
+
+
     if (list.length > 0) {
-      const button = document.createElement("button");
-      button.textContent = buttonText;
-      button.classList.add("btn", "btn-primary", "m-2");
-
-      const typeDescriptions = {
-        enemy: " is een vijand van ",
-        friend: " is een vriend van ",
-        game: " is een game met ",
-        firstGame: " is de eerste game met ",
-        charactersInGame: " is een character uit ",
-        dlc: " is DLC van ",
-        images: " van "
-      };
-
-      button.addEventListener("click", (event) => {
-        this.dom.titleContainer.innerHTML = "We kijken nu naar " + characterName;
-        const containerTitle = this.dom.characterInfoContainer.textContent;
-
-        if (containerTitle != characterName) {
-          const parentContainerId = event.target.parentElement.id;       
-          this.loadAndDisplayItem(characterUrl, parentContainerId); // Laad de details van het character
-
+      const fragmentButton = document.createElement("button");
+      fragmentButton.textContent = buttonText;
+      fragmentButton.classList.add("btn", "btn-primary", "m-2");
+      
+      fragmentButton.addEventListener("click", (event) => {
+        this.dom.titleContainer.innerHTML = "We kijken nu naar " + oldItemName;
+        let parentContainerId = event.target.parentElement.id; // Verkrijg de parentContainerId van de knop
+        if (parentContainerId == "extraInfoContainer"){
+          
+          this.loadAndDisplayItem(oldItemUrl, parentContainerId); 
         }
 
-        this.dom.namesContainer.innerHTML = `<h3>${buttonText}</h3>`; // Leeg de lijst voor nieuwe vrienden/vijanden
+        this.dom.namesContainer.innerHTML = `<h3>${buttonText}</h3>`; 
         list.forEach(item => {
-          const itemButton = document.createElement("a");
-          itemButton.href = "#";
-          itemButton.textContent = item.name;
-          itemButton.classList.add("btn", "btn-primary", "m-2");
+          const newItenName = item.name || ""; // Verkrijg de naam van het item
+          const newItemUrl = item.api_detail_url.replace(/\/(enemy|friend)\//g, "/character/"); // Vervang enemy of friend door character in de URL
+          const titleText = newItenName + typeDescription + oldItemName; // Combineer de naam van het item met de beschrijving en de naam van het character
 
+          const namesContainerButton = document.createElement("a");
+          namesContainerButton.href = "#";
+          namesContainerButton.textContent = item.name;
+          namesContainerButton.classList.add("btn", "btn-primary", "m-2");
+          
+          
 
-          const itemUrl = (type == "enemy" || type == "friend")
-            ? item.api_detail_url.replace(type, "character")
-            : item.api_detail_url;
-
-          if (list.length === 1) {            
-              const parentContainerId = event.target.parentElement.id;       
-              this.loadAndDisplayItem(itemUrl, parentContainerId); // Laad de details van het character
-              if (typeDescriptions[type]) {
-                this.dom.titleContainer.innerHTML = `${item.name}${typeDescriptions[type]}${characterName}`;
-              }
-              console.log(itemUrl + "er is maar 1 item --- stop gelijk in extrainfo container");        
-          }
-
-          itemButton.addEventListener("click", (event) => {
-            event.preventDefault();
-            if (typeDescriptions[type]) {
-              this.dom.titleContainer.innerHTML = `${item.name}${typeDescriptions[type]}${characterName}`;
-            }
-            const parentContainerId = event.target.parentElement.id;       
-            this.loadAndDisplayItem(itemUrl, parentContainerId); // Laad de details van het character
+          namesContainerButton.addEventListener("click", (event) => {
+            event.preventDefault();            
+            this.dom.titleContainer.innerHTML = titleText; // Update de titleContainer met de naam van het item
+            //parentContainerId = event.target.parentElement.id;
+            this.loadAndDisplayItem(newItemUrl, parentContainerId); // Laad de details van het character
           });
 
+          if (list.length === 1) {                
+            this.loadAndDisplayItem(newItemUrl, parentContainerId); // Laad de details van het character
+            this.dom.titleContainer.innerHTML = titleText; // Update de titleContainer met de naam van het item
+            
+        }
 
-          this.dom.namesContainer.appendChild(itemButton);
+          this.dom.namesContainer.appendChild(namesContainerButton);
 
         });
       });
-      fragment.appendChild(button);
+      fragment.appendChild(fragmentButton);
     }
   }
 

@@ -1,4 +1,4 @@
-export class CharacterModel {
+export class Model {
     constructor(apiKey, jsonFilePath) {
         this.apiKey = apiKey;
         this.baseUrl = "https://www.giantbomb.com/api/";
@@ -6,10 +6,10 @@ export class CharacterModel {
         this.characterNames = [];
     }
   
-    async loadCharacterData(characterUrl) {
+    async loadData(apiUrl) {
       try {
         const response = await $.ajax({
-          url: characterUrl,
+          url: apiUrl,
           type: "GET",
           dataType: "jsonp",
           jsonp: "json_callback",
