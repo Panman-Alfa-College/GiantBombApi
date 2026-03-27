@@ -1,5 +1,5 @@
 import { Model } from "./characterModel.js";
-import { UIManager } from "./uIManager.js";
+import { UIManager } from "./uiManager.js";
 
 export class CharacterApp {
   constructor(apiKey, jsonFilePath) {
